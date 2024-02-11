@@ -1,3 +1,6 @@
 package com.wsr.peace
 
-interface Peace
+sealed interface Peace {
+    data object Goat : Peace
+    data object Tiger : Peace
+}
