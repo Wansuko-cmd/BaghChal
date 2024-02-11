@@ -16,7 +16,7 @@ internal class EightDirectionTile private constructor(peace: Peace?) : Tile(peac
         standard.down.right,
     )
 
-    override fun place(peace: Peace): Tile = EightDirectionTile(peace)
+    override fun put(peace: Peace): Tile = EightDirectionTile(peace)
 
     override fun remove(): Tile = EightDirectionTile(null)
 

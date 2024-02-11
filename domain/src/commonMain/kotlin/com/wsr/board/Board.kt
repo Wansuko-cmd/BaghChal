@@ -14,7 +14,7 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
     fun getNeighborCoordinates(coordinate: Coordinate): ApiResult<List<Coordinate>, BoardException> =
         getTile(coordinate)
             .map { tile -> tile.neighborCoordinates(coordinate) }
-            .map { coordinates -> coordinates.filter { true } }
+            .map { coordinates -> coordinates.filter { getTile(it) is ApiResult.Success } }
 
     private fun getTile(coordinate: Coordinate): ApiResult<Tile, BoardException> =
         tiles
@@ -23,8 +23,8 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             ?.let { tile -> ApiResult.Success(tile) }
             ?: ApiResult.Failure(BoardException.NotInRangeException)
 
-    internal fun place(peace: Peace, coordinate: Coordinate): ApiResult<Board, BoardException> =
-        updateTile(coordinate) { it.place(peace) }
+    internal fun put(peace: Peace, coordinate: Coordinate): ApiResult<Board, BoardException> =
+        updateTile(coordinate) { it.put(peace) }
 
     internal fun remove(coordinate: Coordinate): ApiResult<Board, BoardException> =
         updateTile(coordinate) { it.remove() }
@@ -35,14 +35,6 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
         }
             .map { Board(it) }
 
-    private fun <T> List<T>.update(
-        index: Int,
-        block: (T) -> ApiResult<T, BoardException>,
-    ): ApiResult<List<T>, BoardException> =
-        if (index !in 0..size) ApiResult.Failure(BoardException.NotInRangeException)
-        else block(get(index))
-            .map { subList(0, index) + it + subList(index, size) }
-
     companion object {
         fun create() = MutableList(5) { rowIndex ->
             MutableList(5) { columIndex ->
@@ -51,11 +43,19 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             }
         }
             .also { tiles ->
-                tiles[0][0] = tiles[0][0].place(Peace.Tiger)
-                tiles[0][tiles.size - 1] = tiles[0][tiles.size - 1].place(Peace.Tiger)
-                tiles[tiles.size - 1][0] = tiles[tiles.size - 1][0].place(Peace.Tiger)
-                tiles[tiles.size - 1][tiles.size - 1] = tiles[tiles.size - 1][tiles.size - 1].place(Peace.Tiger)
+                tiles[0][0] = tiles[0][0].put(Peace.Tiger)
+                tiles[0][tiles.size - 1] = tiles[0][tiles.size - 1].put(Peace.Tiger)
+                tiles[tiles.size - 1][0] = tiles[tiles.size - 1][0].put(Peace.Tiger)
+                tiles[tiles.size - 1][tiles.size - 1] = tiles[tiles.size - 1][tiles.size - 1].put(Peace.Tiger)
             }
             .let { Board(it) }
     }
 }
+
+private fun <T> List<T>.update(
+    index: Int,
+    block: (T) -> ApiResult<T, BoardException>,
+): ApiResult<List<T>, BoardException> =
+    if (index !in 0..size) ApiResult.Failure(BoardException.NotInRangeException)
+    else block(get(index))
+        .map { subList(0, index) + it + subList(index, size) }
