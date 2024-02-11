@@ -17,8 +17,6 @@ dependencyResolutionManagement {
 }
 
 rootProject.name = "BaghChal"
-include(":app")
-include(":ui")
-include(":utils")
 
+include(":utils")
 include(":lib")
