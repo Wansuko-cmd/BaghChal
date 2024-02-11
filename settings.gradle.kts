@@ -20,3 +20,4 @@ rootProject.name = "BaghChal"
 
 include(":utils")
 include(":cui")
+include(":domain")
