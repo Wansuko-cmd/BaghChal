@@ -20,6 +20,6 @@ internal class EightDirectionTile private constructor(peace: Peace?) : Tile(peac
     )
 
     companion object {
-        fun create(peace: Peace?) = EightDirectionTile(peace)
+        fun create() = EightDirectionTile(null)
     }
 }

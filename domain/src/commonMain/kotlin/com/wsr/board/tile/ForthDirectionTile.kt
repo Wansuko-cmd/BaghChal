@@ -17,6 +17,6 @@ internal class ForthDirectionTile private constructor(peace: Peace?) : Tile(peac
     override fun remove(): Tile = ForthDirectionTile(null)
 
     companion object {
-        fun create(peace: Peace?) = ForthDirectionTile(peace)
+        fun create() = ForthDirectionTile(null)
     }
 }
