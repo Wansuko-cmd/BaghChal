@@ -13,10 +13,10 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             ?.let { tile -> ApiResult.Success(tile) }
             ?: ApiResult.Failure(BoardException.NotInRangeException)
 
-    fun place(peace: Peace, row: Int, column: Int): ApiResult<Board, BoardException> =
+    internal fun place(peace: Peace, row: Int, column: Int): ApiResult<Board, BoardException> =
         updateTile(row, column) { it.place(peace) }
 
-    fun remove(row: Int, column: Int): ApiResult<Board, BoardException> =
+    internal fun remove(row: Int, column: Int): ApiResult<Board, BoardException> =
         updateTile(row, column) { it.remove() }
 
     private fun updateTile(row: Int, column: Int, block: (Tile) -> Tile) =
