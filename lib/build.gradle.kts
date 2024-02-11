@@ -1,7 +1,13 @@
 plugins {
-    kotlin("jvm")
+    id(Plugins.kotlinMultiPlatform)
 }
 
-dependencies {
-    implementation(project(":utils"))
+kotlin {
+    sourceSets {
+        val commonMain by getting {
+            dependencies {
+                implementation(project(":utils"))
+            }
+        }
+    }
 }
