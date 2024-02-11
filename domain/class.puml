@@ -1,0 +1,44 @@
+@startuml
+
+class Board {
+  -tiles: List<List<Tile>>
+
+  place(peace: Peace, row: Int, column: Int)
+  remove(row: Int, column: Int)
+}
+
+interface Tile {
+  peace: Peace?
+
+  place()
+  remove()
+  direction()
+}
+Board *-- Tile
+
+class ForthDirectionTile
+Tile <|-- ForthDirectionTile
+
+class EightDirectionTile
+Tile <|-- EightDirectionTile
+
+enum Direction {
+  Up
+  Down
+  Left
+  Right
+  UpLeft
+  UpRight
+  DownLeft
+  DownRight
+}
+
+interface Peace
+
+class Goat
+Peace <|-- Goat
+
+class Tiger
+Peace <|-- Tiger
+
+@enduml
