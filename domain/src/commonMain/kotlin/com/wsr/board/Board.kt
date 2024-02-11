@@ -8,22 +8,22 @@ import com.wsr.result.ApiResult
 import com.wsr.result.map
 
 class Board private constructor(private val tiles: List<List<Tile>>) {
-    fun getTile(row: Int, column: Int): ApiResult<Tile, BoardException> =
+    fun getTile(coordinate: Coordinate): ApiResult<Tile, BoardException> =
         tiles
-            .getOrNull(row)
-            ?.getOrNull(column)
+            .getOrNull(coordinate.row)
+            ?.getOrNull(coordinate.column)
             ?.let { tile -> ApiResult.Success(tile) }
             ?: ApiResult.Failure(BoardException.NotInRangeException)
 
-    internal fun place(peace: Peace, row: Int, column: Int): ApiResult<Board, BoardException> =
-        updateTile(row, column) { it.place(peace) }
+    internal fun place(peace: Peace, coordinate: Coordinate): ApiResult<Board, BoardException> =
+        updateTile(coordinate) { it.place(peace) }
 
-    internal fun remove(row: Int, column: Int): ApiResult<Board, BoardException> =
-        updateTile(row, column) { it.remove() }
+    internal fun remove(coordinate: Coordinate): ApiResult<Board, BoardException> =
+        updateTile(coordinate) { it.remove() }
 
-    private fun updateTile(row: Int, column: Int, block: (Tile) -> Tile) =
-        tiles.update(row) { col ->
-            col.update(column) { tile -> ApiResult.Success(block(tile)) }
+    private fun updateTile(coordinate: Coordinate, block: (Tile) -> Tile) =
+        tiles.update(coordinate.row) { col ->
+            col.update(coordinate.column) { tile -> ApiResult.Success(block(tile)) }
         }
             .map { Board(it) }
 
