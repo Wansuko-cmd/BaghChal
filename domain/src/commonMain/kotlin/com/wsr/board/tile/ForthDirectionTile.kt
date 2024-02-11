@@ -12,7 +12,7 @@ internal class ForthDirectionTile private constructor(peace: Peace?) : Tile(peac
         standard.right,
     )
 
-    override fun put(peace: Peace): Tile = ForthDirectionTile(peace)
+    override fun place(peace: Peace): Tile = ForthDirectionTile(peace)
 
     override fun remove(): Tile = ForthDirectionTile(null)
 

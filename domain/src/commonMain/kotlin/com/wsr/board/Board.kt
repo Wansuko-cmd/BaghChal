@@ -8,13 +8,17 @@ import com.wsr.result.ApiResult
 import com.wsr.result.map
 
 class Board private constructor(private val tiles: List<List<Tile>>) {
+    internal val coordinates = tiles.flatMapIndexed { rowIndex, col ->
+        List(col.size) { colIndex -> Coordinate(rowIndex, colIndex) }
+    }
+
     fun getPeace(coordinate: Coordinate): ApiResult<Peace?, BoardException> =
         getTile(coordinate).map { tile -> tile.peace }
 
     fun getNeighborCoordinates(coordinate: Coordinate): ApiResult<List<Coordinate>, BoardException> =
         getTile(coordinate)
             .map { tile -> tile.neighborCoordinates(coordinate) }
-            .map { coordinates -> coordinates.filter { getTile(it) is ApiResult.Success } }
+            .map { neighborCoordinates -> neighborCoordinates.filter { it in coordinates } }
 
     private fun getTile(coordinate: Coordinate): ApiResult<Tile, BoardException> =
         tiles
@@ -23,8 +27,8 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             ?.let { tile -> ApiResult.Success(tile) }
             ?: ApiResult.Failure(BoardException.NotInRangeException)
 
-    internal fun put(peace: Peace, coordinate: Coordinate): ApiResult<Board, BoardException> =
-        updateTile(coordinate) { it.put(peace) }
+    internal fun place(peace: Peace, coordinate: Coordinate): ApiResult<Board, BoardException> =
+        updateTile(coordinate) { it.place(peace) }
 
     internal fun remove(coordinate: Coordinate): ApiResult<Board, BoardException> =
         updateTile(coordinate) { it.remove() }
@@ -36,17 +40,17 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             .map { Board(it) }
 
     companion object {
-        fun create() = MutableList(5) { rowIndex ->
+        internal fun create() = MutableList(5) { rowIndex ->
             MutableList(5) { columIndex ->
                 if ((rowIndex + columIndex) % 2 == 0) EightDirectionTile.create()
                 else ForthDirectionTile.create()
             }
         }
             .also { tiles ->
-                tiles[0][0] = tiles[0][0].put(Peace.Tiger)
-                tiles[0][tiles.size - 1] = tiles[0][tiles.size - 1].put(Peace.Tiger)
-                tiles[tiles.size - 1][0] = tiles[tiles.size - 1][0].put(Peace.Tiger)
-                tiles[tiles.size - 1][tiles.size - 1] = tiles[tiles.size - 1][tiles.size - 1].put(Peace.Tiger)
+                tiles[0][0] = tiles[0][0].place(Peace.Tiger)
+                tiles[0][tiles.size - 1] = tiles[0][tiles.size - 1].place(Peace.Tiger)
+                tiles[tiles.size - 1][0] = tiles[tiles.size - 1][0].place(Peace.Tiger)
+                tiles[tiles.size - 1][tiles.size - 1] = tiles[tiles.size - 1][tiles.size - 1].place(Peace.Tiger)
             }
             .let { Board(it) }
     }
