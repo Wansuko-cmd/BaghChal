@@ -8,7 +8,15 @@ import com.wsr.result.ApiResult
 import com.wsr.result.map
 
 class Board private constructor(private val tiles: List<List<Tile>>) {
-    fun getTile(coordinate: Coordinate): ApiResult<Tile, BoardException> =
+    fun getPeace(coordinate: Coordinate): ApiResult<Peace?, BoardException> =
+        getTile(coordinate).map { tile -> tile.peace }
+
+    fun getNeighborCoordinates(coordinate: Coordinate): ApiResult<List<Coordinate>, BoardException> =
+        getTile(coordinate)
+            .map { tile -> tile.neighborCoordinates(coordinate) }
+            .map { coordinates -> coordinates.filter { true } }
+
+    private fun getTile(coordinate: Coordinate): ApiResult<Tile, BoardException> =
         tiles
             .getOrNull(coordinate.row)
             ?.getOrNull(coordinate.column)
