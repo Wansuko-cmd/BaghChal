@@ -1,4 +1,4 @@
-package com.wsr.tile
+package com.wsr
 
 sealed interface Direction {
     data object Up : Direction

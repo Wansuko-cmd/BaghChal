@@ -1,6 +1,7 @@
-package com.wsr.tile
+package com.wsr.board.tile
 
-import com.wsr.peace.Peace
+import com.wsr.Direction
+import com.wsr.Peace
 
 class EightDirectionTile private constructor(override val peace: Peace? = null) : Tile {
     override fun place(peace: Peace): Tile = EightDirectionTile(peace)

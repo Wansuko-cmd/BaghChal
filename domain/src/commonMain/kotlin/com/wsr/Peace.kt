@@ -1,4 +1,4 @@
-package com.wsr.peace
+package com.wsr
 
 sealed interface Peace {
     data object Goat : Peace

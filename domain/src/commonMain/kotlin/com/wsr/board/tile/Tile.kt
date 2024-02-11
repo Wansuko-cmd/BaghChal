@@ -1,6 +1,7 @@
-package com.wsr.tile
+package com.wsr.board.tile
 
-import com.wsr.peace.Peace
+import com.wsr.Direction
+import com.wsr.Peace
 
 interface Tile {
     val peace: Peace?
