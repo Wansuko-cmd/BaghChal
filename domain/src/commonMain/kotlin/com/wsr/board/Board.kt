@@ -4,62 +4,57 @@ import com.wsr.Peace
 import com.wsr.board.tile.EightDirectionTile
 import com.wsr.board.tile.ForthDirectionTile
 import com.wsr.board.tile.Tile
-import com.wsr.result.ApiResult
-import com.wsr.result.map
 
 class Board private constructor(private val tiles: List<List<Tile>>) {
-    internal val coordinates = tiles.flatMapIndexed { rowIndex, col ->
+    val coordinates = tiles.flatMapIndexed { rowIndex, col ->
         List(col.size) { colIndex -> Coordinate(rowIndex, colIndex) }
     }
 
-    fun getPeace(coordinate: Coordinate): ApiResult<Peace?, BoardException> =
-        getTile(coordinate).map { tile -> tile.peace }
-
-    fun getNeighborCoordinates(coordinate: Coordinate): ApiResult<List<Coordinate>, BoardException> =
-        getTile(coordinate)
-            .map { tile -> tile.neighborCoordinates(coordinate) }
-            .map { neighborCoordinates -> neighborCoordinates.filter { it in coordinates } }
-
-    private fun getTile(coordinate: Coordinate): ApiResult<Tile, BoardException> =
+    internal operator fun get(coordinate: Coordinate): Tile =
         tiles
             .getOrNull(coordinate.row)
             ?.getOrNull(coordinate.column)
-            ?.let { tile -> ApiResult.Success(tile) }
-            ?: ApiResult.Failure(BoardException.NotInRangeException)
+            ?: throw BoardException.CoordinateOutOfRangeException
 
-    internal fun place(peace: Peace, coordinate: Coordinate): ApiResult<Board, BoardException> =
+    internal fun getNext(coordinate: Coordinate, direction: Direction): Tile? {
+        val nextCoordinate = coordinate.moveTo(direction)
+        if (nextCoordinate !in coordinates) return null
+        return get(nextCoordinate)
+    }
+
+    /**
+     * 更新処理
+     */
+    internal fun place(peace: Peace, coordinate: Coordinate): Board =
         updateTile(coordinate) { it.place(peace) }
 
-    internal fun remove(coordinate: Coordinate): ApiResult<Board, BoardException> =
+    internal fun remove(coordinate: Coordinate): Board =
         updateTile(coordinate) { it.remove() }
 
     private fun updateTile(coordinate: Coordinate, block: (Tile) -> Tile) =
         tiles.update(coordinate.row) { col ->
-            col.update(coordinate.column) { tile -> ApiResult.Success(block(tile)) }
+            col.update(coordinate.column) { tile -> block(tile) }
         }
-            .map { Board(it) }
+            .let { Board(it) }
 
     companion object {
-        internal fun create() = MutableList(5) { rowIndex ->
-            MutableList(5) { columIndex ->
+        internal fun create() = List(5) { rowIndex ->
+            List(5) { columIndex ->
                 if ((rowIndex + columIndex) % 2 == 0) EightDirectionTile.create()
                 else ForthDirectionTile.create()
             }
         }
-            .also { tiles ->
-                tiles[0][0] = tiles[0][0].place(Peace.Tiger)
-                tiles[0][tiles.size - 1] = tiles[0][tiles.size - 1].place(Peace.Tiger)
-                tiles[tiles.size - 1][0] = tiles[tiles.size - 1][0].place(Peace.Tiger)
-                tiles[tiles.size - 1][tiles.size - 1] = tiles[tiles.size - 1][tiles.size - 1].place(Peace.Tiger)
-            }
             .let { Board(it) }
+            .place(Peace.Tiger, Coordinate(0, 0))
+            .place(Peace.Tiger, Coordinate(0, 4))
+            .place(Peace.Tiger, Coordinate(4, 0))
+            .place(Peace.Tiger, Coordinate(4, 4))
     }
 }
 
 private fun <T> List<T>.update(
     index: Int,
-    block: (T) -> ApiResult<T, BoardException>,
-): ApiResult<List<T>, BoardException> =
-    if (index !in 0..size) ApiResult.Failure(BoardException.NotInRangeException)
-    else block(get(index))
-        .map { subList(0, index) + it + subList(index, size) }
+    block: (T) -> T,
+): List<T> =
+    if (index !in 0..size) throw BoardException.CoordinateOutOfRangeException
+    else subList(0, index) + block(get(index)) + subList(index, size)
