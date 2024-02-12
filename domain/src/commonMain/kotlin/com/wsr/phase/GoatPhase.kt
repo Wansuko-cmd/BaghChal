@@ -20,24 +20,31 @@ sealed class GoatPhase private constructor(protected val board: Board) {
         }
     }
 
-//    class Move internal constructor(board: Board) : GoatPhase(board) {
-//        val movableCoordinate: List<Pair<Coordinate, List<Coordinate>>> = board
-//            .filterCoordinate { tile -> tile.peace == Peace.Goat }
-//            .map { coordinate ->
-//                val emptyCoordinate = board.filterCoordinate { tile -> tile.peace == null }
-//                board
-//                    .getNeighborCoordinates(coordinate)
-//                    .map { neighborCoordinates ->
-//                        coordinate to neighborCoordinates.filter { it in emptyCoordinate }
-//                    }
-//            }
-//            .filterIsInstance<ApiResult.Success<Pair<Coordinate, List<Coordinate>>>>()
-//            .map { it.value }
-//            .filter { it.second.isNotEmpty() }
-//
-//        fun move(from: Coordinate, to: Coordinate) =
-//            board
-//    }
+    class Move internal constructor(board: Board) : GoatPhase(board) {
+        val movableCoordinate: List<Pair<Coordinate, List<Coordinate>>> = board
+            .coordinates
+            .filter { coordinate -> board[coordinate].peace == Peace.Goat }
+            .map { coordinate ->
+                coordinate to board[coordinate]
+                    .movableDirection
+                    .mapNotNull { nextCoordinate -> board.getNext(coordinate, nextCoordinate) }
+                    .filter { board[it].peace == null }
+            }
+            .filter { (_, nextCoordinates) -> nextCoordinates.isNotEmpty() }
+
+        fun move(from: Coordinate, to: Coordinate): ApiResult<TigerPhase, PhaseException> {
+            val isInvalidCoordinates = movableCoordinate
+                .none { (coordinate, nextCoordinates) ->
+                    coordinate == from && nextCoordinates.contains(to)
+                }
+            if (isInvalidCoordinates) return ApiResult.Failure(PhaseException.InvalidCoordinateException())
+            return board
+                .remove(from)
+                .place(Peace.Goat, to)
+                .let { TigerPhase(it) }
+                .let { ApiResult.Success(it) }
+        }
+    }
 
     companion object {
         fun create(board: Board) = Place(board)

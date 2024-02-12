@@ -16,10 +16,10 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             ?.getOrNull(coordinate.column)
             ?: throw BoardException.CoordinateOutOfRangeException
 
-    internal fun getNext(coordinate: Coordinate, direction: Direction): Tile? {
+    internal fun getNext(coordinate: Coordinate, direction: Direction): Coordinate? {
         val nextCoordinate = coordinate.moveTo(direction)
         if (nextCoordinate !in coordinates) return null
-        return get(nextCoordinate)
+        return nextCoordinate
     }
 
     /**
