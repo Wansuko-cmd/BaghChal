@@ -40,8 +40,9 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
     companion object {
         internal fun create() = List(5) { rowIndex ->
             List(5) { columnIndex ->
-                if ((rowIndex + columnIndex) % 2 == 0) EightDirectionTile.create()
-                else ForthDirectionTile.create()
+                if ((rowIndex + columnIndex) % 2 == 0) {
+                    EightDirectionTile.create()
+                } else ForthDirectionTile.create()
             }
         }
             .let { Board(it) }
@@ -56,5 +57,6 @@ private fun <T> List<T>.update(
     index: Int,
     block: (T) -> T,
 ): List<T> =
-    if (index !in 0..size) throw BoardException.CoordinateOutOfRangeException
-    else subList(0, index) + block(get(index)) + subList(index + 1, size)
+    if (index !in 0..size) {
+        throw BoardException.CoordinateOutOfRangeException
+    } else subList(0, index) + block(get(index)) + subList(index + 1, size)

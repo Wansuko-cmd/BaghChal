@@ -4,10 +4,10 @@ import com.wsr.Peace
 import com.wsr.board.Board
 
 sealed class GoatPhase<T : Movement> private constructor() : Phase<T>() {
-    class Place internal constructor(private val board: Board) : GoatPhase<Movement.Place>() {
-        override val movements: List<Movement.Place> = Movement.Place.createMovements(board)
+    class Place internal constructor(private val board: Board) : GoatPhase<Movement.GoatPlace>() {
+        override val movements: List<Movement.GoatPlace> = Movement.GoatPlace.createMovements(board)
 
-        override fun process(movement: Movement.Place): PhaseResult {
+        override fun process(movement: Movement.GoatPlace): PhaseResult {
             if (movement !in movements) throw PhaseException.InvalidCoordinateException()
             return PhaseResult(
                 board = board.place(Peace.Goat, movement.coordinate),
@@ -16,10 +16,10 @@ sealed class GoatPhase<T : Movement> private constructor() : Phase<T>() {
         }
     }
 
-    class Move internal constructor(private val board: Board) : GoatPhase<Movement.Move>() {
-        override val movements: List<Movement.Move> = Movement.Move.createMovements(board)
+    class Move internal constructor(private val board: Board) : GoatPhase<Movement.GoatMove>() {
+        override val movements: List<Movement.GoatMove> = Movement.GoatMove.createMovements(board)
 
-        override fun process(movement: Movement.Move): PhaseResult {
+        override fun process(movement: Movement.GoatMove): PhaseResult {
             if (movement !in movements) throw PhaseException.InvalidCoordinateException()
             return PhaseResult(
                 board = board

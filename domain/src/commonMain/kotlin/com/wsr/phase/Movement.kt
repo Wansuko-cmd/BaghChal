@@ -5,18 +5,18 @@ import com.wsr.board.Board
 import com.wsr.board.Coordinate
 
 sealed interface Movement {
-    data class Place(val coordinate: Coordinate) : Movement {
+    data class GoatPlace(val coordinate: Coordinate) : Movement {
         companion object {
-            fun createMovements(board: Board): List<Place> = board
+            fun createMovements(board: Board): List<GoatPlace> = board
                 .coordinates
                 .filter { board[it].peace == null }
-                .map { Place(coordinate = it) }
+                .map { GoatPlace(coordinate = it) }
         }
     }
 
-    data class Move(val from: Coordinate, val to: Coordinate) : Movement {
+    data class GoatMove(val from: Coordinate, val to: Coordinate) : Movement {
         companion object {
-            fun createMovements(board: Board): List<Move> = board
+            fun createMovements(board: Board): List<GoatMove> = board
                 .coordinates
                 .filter { coordinate -> board[coordinate].peace == Peace.Goat }
                 .flatMap { coordinate ->
@@ -24,7 +24,7 @@ sealed interface Movement {
                         .movableDirection
                         .mapNotNull { direction -> board.getNext(coordinate, direction) }
                         .filter { nextCoordinate -> board[nextCoordinate].peace == null }
-                        .map { Move(from = coordinate, to = it) }
+                        .map { GoatMove(from = coordinate, to = it) }
                 }
         }
     }

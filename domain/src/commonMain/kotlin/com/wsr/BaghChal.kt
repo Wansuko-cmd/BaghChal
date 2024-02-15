@@ -18,6 +18,7 @@ class BaghChal private constructor(
         Movement.TigerMove.createMovements(board).isEmpty() -> Peace.Goat
         else -> null
     }
+
     fun process(block: (Phase<Movement>) -> Movement): BaghChal {
         if (winner != null) throw PhaseException.AlreadyCompleteException()
         val coordinate = block(phase)
