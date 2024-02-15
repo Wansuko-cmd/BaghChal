@@ -1,44 +1,29 @@
 @startuml
 
-class Board {
-  -tiles: List<List<Tile>>
-
-  place(peace: Peace, row: Int, column: Int)
-  remove(row: Int, column: Int)
+class BaghChal {
+  board: Board
+  numOfKilledGoat: Int
+  numOfPlacedGoat: Int
+  numOfTrappedTiger: Int
 }
 
-interface Tile {
-  peace: Peace?
-
-  place()
-  remove()
-  direction()
+class GoatPhase.Place {
+  -baghChal: BaghChal
+  place(coordinate: Coordinate): BaghChal
 }
-Board *-- Tile
+BaghChal <|-- GoatPhase.Place
 
-class ForthDirectionTile
-Tile <|-- ForthDirectionTile
-
-class EightDirectionTile
-Tile <|-- EightDirectionTile
-
-enum Direction {
-  Up
-  Down
-  Left
-  Right
-  UpLeft
-  UpRight
-  DownLeft
-  DownRight
+class GoatPhase.Move {
+  -baghChal: BaghChal
 }
+BaghChal <|-- GoatPhase.Move
 
-interface Peace
+class TigerPhase {
+  -baghChal: BaghChal
+}
+BaghChal <|-- TigerPhase
 
-class Goat
-Peace <|-- Goat
-
-class Tiger
-Peace <|-- Tiger
+class Complete
+BaghChal <|-- Complete
 
 @enduml
