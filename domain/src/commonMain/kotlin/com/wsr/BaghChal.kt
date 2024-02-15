@@ -12,6 +12,11 @@ class BaghChal private constructor(
     val sumOfKilledGoat: Int,
     private val phase: Phase<Movement>,
 ) {
+    val winner: Peace? = when {
+        sumOfKilledGoat >= 5 -> Peace.Tiger
+        TigerPhase(board).movements.isEmpty() -> Peace.Goat
+        else -> null
+    }
     fun process(block: (Phase<Movement>) -> Movement): BaghChal {
         val coordinate = block(phase)
         val result = phase.process(coordinate)

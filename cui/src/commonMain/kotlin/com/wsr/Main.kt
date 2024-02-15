@@ -6,7 +6,7 @@ import com.wsr.phase.TigerPhase
 
 fun main() {
     var baghChal = BaghChal.create()
-    for (i in 1..50) {
+    while (baghChal.winner == null) {
         baghChal = baghChal.process { phase ->
             when (phase) {
                 is GoatPhase.Place -> phase.movements.random()
@@ -18,6 +18,7 @@ fun main() {
         println(baghChal.toDisplayString())
         printLine()
     }
+    println(baghChal.winner)
 }
 
 private fun BaghChal.toDisplayString() =

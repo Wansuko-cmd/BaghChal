@@ -43,7 +43,7 @@ class TigerPhase(private val board: Board) : Phase<Movement.TigerMove>() {
                 .remove(movement.from)
                 .place(Peace.Tiger, movement.to)
                 .let { if (movement.kill != null) it.remove(movement.kill) else it },
-            killedGoat = if (movement.kill != null) 1 else 0
+            killedGoat = if (movement.kill != null) 1 else 0,
         )
     }
 }
