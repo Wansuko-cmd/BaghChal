@@ -3,7 +3,9 @@ package com.wsr.phase
 import com.wsr.board.Board
 
 interface Phase<T> {
-    fun process(value: T): PhaseResult
+    val coordinates: List<T>
+
+    fun process(coordinate: T): PhaseResult
 }
 
 data class PhaseResult(
