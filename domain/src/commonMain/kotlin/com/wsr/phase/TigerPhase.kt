@@ -3,7 +3,7 @@ package com.wsr.phase
 import com.wsr.Peace
 import com.wsr.board.Board
 
-class TigerPhase(private val board: Board) : Phase<Movement.Move>() {
+class TigerPhase(private val board: Board) : Phase<Movement.TigerMove>() {
     private val moveMovements = board
         .coordinates
         .filter { coordinate -> board[coordinate].peace == Peace.Tiger }
@@ -12,7 +12,7 @@ class TigerPhase(private val board: Board) : Phase<Movement.Move>() {
                 .movableDirection
                 .mapNotNull { direction -> board.getNext(coordinate, direction) }
                 .filter { nextCoordinate -> board[nextCoordinate].peace == null }
-                .map { Movement.Move(from = coordinate, to = it) }
+                .map { Movement.TigerMove(from = coordinate, to = it) }
         }
 
     private val killMovement = board
@@ -22,16 +22,28 @@ class TigerPhase(private val board: Board) : Phase<Movement.Move>() {
             board[coordinate]
                 .movableDirection
                 .asSequence()
-                .mapNotNull { direction -> board.getNext(coordinate, direction)?.let { direction to it } }
-                .filter { (_, nextCoordinate) -> board[nextCoordinate].peace == Peace.Goat }
-                .mapNotNull { (direction, nextCoordinate) -> board.getNext(nextCoordinate, direction) }
-                .filter { nextCoordinate -> board[nextCoordinate].peace == null }
-                .map { Movement.Move(from = coordinate, to = it) }
+                .mapNotNull { direction ->
+                    board.getNext(coordinate, direction)?.let { direction to it }
+                }
+                .filter { (_, killCoordinate) -> board[killCoordinate].peace == Peace.Goat }
+                .mapNotNull { (direction, killCoordinate) ->
+                    board.getNext(killCoordinate, direction)?.let { killCoordinate to it }
+                }
+                .filter { (_, nextCoordinate) -> board[nextCoordinate].peace == null }
+                .map { (killCoordinate, nextCoordinate) ->
+                    Movement.TigerMove(from = coordinate, to = nextCoordinate, kill = killCoordinate)
+                }
                 .toList()
         }
 
-    override val movements: List<Movement.Move> = moveMovements + killMovement
-    override fun process(movement: Movement.Move): PhaseResult {
-        return PhaseResult(board)
+    override val movements: List<Movement.TigerMove> = moveMovements + killMovement
+    override fun process(movement: Movement.TigerMove): PhaseResult {
+        return PhaseResult(
+            board = board
+                .remove(movement.from)
+                .place(Peace.Tiger, movement.to)
+                .let { if (movement.kill != null) it.remove(movement.kill) else it },
+            killedGoat = if (movement.kill != null) 1 else 0
+        )
     }
 }

@@ -18,7 +18,7 @@ class BaghChal private constructor(
         return BaghChal(
             board = result.board,
             sumOfPlacedGoat = sumOfPlacedGoat + result.placedGoat,
-            sumOfKilledGoat = sumOfKilledGoat,
+            sumOfKilledGoat = sumOfKilledGoat + result.killedGoat,
             phase = when (phase) {
                 is GoatPhase -> TigerPhase(result.board)
                 is TigerPhase -> GoatPhase.create(result.board, sumOfPlacedGoat + result.placedGoat)
