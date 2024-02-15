@@ -6,11 +6,11 @@ import com.wsr.board.tile.ForthDirectionTile
 import com.wsr.board.tile.Tile
 
 class Board private constructor(private val tiles: List<List<Tile>>) {
-    val coordinates = tiles.flatMapIndexed { rowIndex, col ->
-        List(col.size) { colIndex -> Coordinate(rowIndex, colIndex) }
+    val coordinates = tiles.flatMapIndexed { rowIndex, columns ->
+        List(columns.size) { columnIndex -> Coordinate(rowIndex, columnIndex) }
     }
 
-    internal operator fun get(coordinate: Coordinate): Tile =
+    operator fun get(coordinate: Coordinate): Tile =
         tiles
             .getOrNull(coordinate.row)
             ?.getOrNull(coordinate.column)
@@ -32,15 +32,15 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
         updateTile(coordinate) { it.remove() }
 
     private fun updateTile(coordinate: Coordinate, block: (Tile) -> Tile) =
-        tiles.update(coordinate.row) { col ->
-            col.update(coordinate.column) { tile -> block(tile) }
+        tiles.update(coordinate.row) { columnTiles ->
+            columnTiles.update(coordinate.column) { tile -> block(tile) }
         }
             .let { Board(it) }
 
     companion object {
         internal fun create() = List(5) { rowIndex ->
-            List(5) { columIndex ->
-                if ((rowIndex + columIndex) % 2 == 0) EightDirectionTile.create()
+            List(5) { columnIndex ->
+                if ((rowIndex + columnIndex) % 2 == 0) EightDirectionTile.create()
                 else ForthDirectionTile.create()
             }
         }
@@ -57,4 +57,4 @@ private fun <T> List<T>.update(
     block: (T) -> T,
 ): List<T> =
     if (index !in 0..size) throw BoardException.CoordinateOutOfRangeException
-    else subList(0, index) + block(get(index)) + subList(index, size)
+    else subList(0, index) + block(get(index)) + subList(index + 1, size)

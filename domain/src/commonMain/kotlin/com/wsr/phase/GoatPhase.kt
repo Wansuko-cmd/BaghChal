@@ -26,8 +26,8 @@ sealed class GoatPhase<T : Movement> private constructor() : Phase<T>() {
             .flatMap { coordinate ->
                 board[coordinate]
                     .movableDirection
-                    .mapNotNull { nextCoordinate -> board.getNext(coordinate, nextCoordinate) }
-                    .filter { board[it].peace == null }
+                    .mapNotNull { direction -> board.getNext(coordinate, direction) }
+                    .filter { nextCoordinate -> board[nextCoordinate].peace == null }
                     .map { Movement.Move(from = coordinate, to = it) }
             }
 
