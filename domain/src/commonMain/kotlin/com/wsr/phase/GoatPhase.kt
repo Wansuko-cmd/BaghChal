@@ -2,25 +2,25 @@ package com.wsr.phase
 
 import com.wsr.Peace
 import com.wsr.board.Board
-import com.wsr.board.Coordinate
 
-sealed class GoatPhase<T> private constructor() : Phase<T> {
-    class Place internal constructor(private val board: Board) : GoatPhase<Coordinate>() {
-        override val coordinates: List<Coordinate> = board
+sealed class GoatPhase<T : Movement> private constructor() : Phase<T> {
+    class Place internal constructor(private val board: Board) : GoatPhase<Movement.Place>() {
+        override val movements: List<Movement.Place> = board
             .coordinates
             .filter { board[it].peace == null }
+            .map { Movement.Place(coordinate = it) }
 
-        override fun process(coordinate: Coordinate): PhaseResult {
-            if (coordinate !in coordinates) throw PhaseException.InvalidCoordinateException()
+        override fun process(movement: Movement.Place): PhaseResult {
+            if (movement !in movements) throw PhaseException.InvalidCoordinateException()
             return PhaseResult(
-                board = board.place(Peace.Goat, coordinate),
+                board = board.place(Peace.Goat, movement.coordinate),
                 placedGoat = 1,
             )
         }
     }
 
-    class Move internal constructor(private val board: Board) : GoatPhase<Pair<Coordinate, Coordinate>>() {
-        override val coordinates: List<Pair<Coordinate, Coordinate>> = board
+    class Move internal constructor(private val board: Board) : GoatPhase<Movement.Move>() {
+        override val movements: List<Movement.Move> = board
             .coordinates
             .filter { coordinate -> board[coordinate].peace == Peace.Goat }
             .flatMap { coordinate ->
@@ -28,21 +28,21 @@ sealed class GoatPhase<T> private constructor() : Phase<T> {
                     .movableDirection
                     .mapNotNull { nextCoordinate -> board.getNext(coordinate, nextCoordinate) }
                     .filter { board[it].peace == null }
-                    .map { coordinate to it }
+                    .map { Movement.Move(from = coordinate, to = it) }
             }
 
-        override fun process(coordinate: Pair<Coordinate, Coordinate>): PhaseResult {
-            if (coordinate !in coordinates) throw PhaseException.InvalidCoordinateException()
+        override fun process(movement: Movement.Move): PhaseResult {
+            if (movement !in movements) throw PhaseException.InvalidCoordinateException()
             return PhaseResult(
                 board = board
-                    .remove(coordinate.first)
-                    .place(Peace.Goat, coordinate.second),
+                    .remove(movement.from)
+                    .place(Peace.Goat, movement.to),
             )
         }
     }
 
     companion object {
-        fun create(board: Board, sumOfPlacedGoat: Int) =
-            if(sumOfPlacedGoat < 20) Place(board) else Move(board)
+        fun create(board: Board, sumOfPlacedGoat: Int): Phase<Movement> =
+            if (sumOfPlacedGoat < 20) Place(board) else Move(board)
     }
 }
