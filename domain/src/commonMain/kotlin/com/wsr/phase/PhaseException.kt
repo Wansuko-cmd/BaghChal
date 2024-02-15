@@ -2,5 +2,5 @@ package com.wsr.phase
 
 sealed class PhaseException : Exception() {
     class InvalidCoordinateException : PhaseException()
-    class NotInRangeException : PhaseException()
+    class AlreadyCompleteException : PhaseException()
 }

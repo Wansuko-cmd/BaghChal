@@ -4,6 +4,7 @@ import com.wsr.board.Board
 import com.wsr.phase.GoatPhase
 import com.wsr.phase.Movement
 import com.wsr.phase.Phase
+import com.wsr.phase.PhaseException
 import com.wsr.phase.TigerPhase
 
 class BaghChal private constructor(
@@ -14,10 +15,11 @@ class BaghChal private constructor(
 ) {
     val winner: Peace? = when {
         sumOfKilledGoat >= 5 -> Peace.Tiger
-        TigerPhase(board).movements.isEmpty() -> Peace.Goat
+        Movement.TigerMove.createMovements(board).isEmpty() -> Peace.Goat
         else -> null
     }
     fun process(block: (Phase<Movement>) -> Movement): BaghChal {
+        if (winner != null) throw PhaseException.AlreadyCompleteException()
         val coordinate = block(phase)
         val result = phase.process(coordinate)
         return BaghChal(
