@@ -3,7 +3,7 @@ package com.wsr.phase
 import com.wsr.Peace
 import com.wsr.board.Board
 
-sealed class GoatPhase<T : Movement> private constructor() : Phase<T> {
+sealed class GoatPhase<T : Movement> private constructor() : Phase<T>() {
     class Place internal constructor(private val board: Board) : GoatPhase<Movement.Place>() {
         override val movements: List<Movement.Place> = board
             .coordinates

@@ -2,10 +2,10 @@ package com.wsr.phase
 
 import com.wsr.board.Board
 
-sealed interface Phase<out T : Movement> {
-    val movements: List<T>
+sealed class Phase<out T : Movement> {
+    abstract val movements: List<T>
 
-    fun process(movement: @UnsafeVariance T): PhaseResult
+    internal abstract fun process(movement: @UnsafeVariance T): PhaseResult
 }
 
 data class PhaseResult(
