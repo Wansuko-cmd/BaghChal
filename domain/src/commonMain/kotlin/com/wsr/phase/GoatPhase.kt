@@ -3,20 +3,19 @@ package com.wsr.phase
 import com.wsr.Peace
 import com.wsr.board.Board
 import com.wsr.board.Coordinate
-import com.wsr.result.ApiResult
 
-sealed class GoatPhase private constructor(protected val board: Board) {
-    class Place internal constructor(board: Board) : GoatPhase(board) {
+sealed class GoatPhase<T> private constructor(protected val board: Board) : Phase<T> {
+    class Place internal constructor(board: Board) : GoatPhase<Coordinate>(board) {
         private val placeableCoordinate: List<Coordinate> = board
             .coordinates
             .filter { board[it].peace == null }
 
-        fun place(coordinate: Coordinate): ApiResult<TigerPhase, PhaseException> {
-            if (coordinate !in placeableCoordinate) return ApiResult.Failure(PhaseException.InvalidCoordinateException())
-            return board
-                .place(Peace.Goat, coordinate)
-                .let { TigerPhase(it) }
-                .let { ApiResult.Success(it) }
+        override fun process(value: Coordinate): PhaseResult {
+            if (value !in placeableCoordinate) throw PhaseException.InvalidCoordinateException()
+            return PhaseResult(
+                board = board.place(Peace.Goat, value),
+                placedGoat = 1,
+            )
         }
     }
 

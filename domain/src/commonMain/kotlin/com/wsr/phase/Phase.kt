@@ -8,6 +8,6 @@ interface Phase<T> {
 
 data class PhaseResult(
     val board: Board,
-    val placedGoat: Int,
-    val killedGoat: Int,
+    val placedGoat: Int = 0,
+    val killedGoat: Int = 0,
 )
