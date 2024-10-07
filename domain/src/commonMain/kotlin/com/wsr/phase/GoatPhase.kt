@@ -30,7 +30,7 @@ sealed class GoatPhase<T : Movement> private constructor() : Phase<T>() {
     }
 
     companion object {
-        fun create(board: Board, sumOfPlacedGoat: Int): Phase<Movement> =
+        internal fun create(board: Board, sumOfPlacedGoat: Int): Phase<Movement> =
             if (sumOfPlacedGoat < 20) Place(board) else Move(board)
     }
 }

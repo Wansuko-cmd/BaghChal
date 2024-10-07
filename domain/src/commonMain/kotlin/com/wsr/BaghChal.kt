@@ -19,9 +19,17 @@ class BaghChal private constructor(
         else -> null
     }
 
-    fun process(block: (Phase<Movement>) -> Movement): BaghChal {
+    fun process(
+        onGoatPlace: (movements: List<Movement.GoatPlace>) -> Movement.GoatPlace,
+        onGoatMove: (movements: List<Movement.GoatMove>) -> Movement.GoatMove,
+        onTigerMove: (movements: List<Movement.TigerMove>) -> Movement.TigerMove,
+    ): BaghChal {
         if (winner != null) throw PhaseException.AlreadyCompleteException()
-        val coordinate = block(phase)
+        val coordinate = when (phase) {
+            is GoatPhase.Place -> onGoatPlace(phase.movements)
+            is GoatPhase.Move -> onGoatMove(phase.movements)
+            is TigerPhase -> onTigerMove(phase.movements)
+        }
         val result = phase.process(coordinate)
         return BaghChal(
             board = result.board,
