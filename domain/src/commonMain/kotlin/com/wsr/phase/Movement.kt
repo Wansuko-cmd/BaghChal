@@ -18,13 +18,11 @@ sealed interface Movement {
         companion object {
             fun createMovements(board: Board): List<GoatMove> = board
                 .coordinates
-                .filter { coordinate -> board[coordinate].peace == Peace.Goat }
-                .flatMap { coordinate ->
-                    board[coordinate]
-                        .movableDirection
-                        .mapNotNull { direction -> board.getNext(coordinate, direction) }
+                .filter { currentCoordinate -> board[currentCoordinate].peace == Peace.Goat }
+                .flatMap { currentCoordinate ->
+                    board.getNext(currentCoordinate)
                         .filter { nextCoordinate -> board[nextCoordinate].peace == null }
-                        .map { GoatMove(from = coordinate, to = it) }
+                        .map { nextCoordinate -> GoatMove(from = currentCoordinate, to = nextCoordinate) }
                 }
         }
     }
@@ -41,33 +39,28 @@ sealed interface Movement {
                     .filter { coordinate -> board[coordinate].peace == Peace.Tiger }
 
                 val moveMovements = tigerCoordinates
-                    .flatMap { coordinate ->
-                        board[coordinate]
-                            .movableDirection
-                            .mapNotNull { direction -> board.getNext(coordinate, direction) }
+                    .flatMap { currentCoordinate ->
+                        board.getNext(currentCoordinate)
                             .filter { nextCoordinate -> board[nextCoordinate].peace == null }
-                            .map { TigerMove(from = coordinate, to = it) }
+                            .map { nextCoordinate -> TigerMove(from = currentCoordinate, to = nextCoordinate) }
                     }
 
                 val killMovement = tigerCoordinates
-                    .flatMap { coordinate ->
-                        board[coordinate]
-                            .movableDirection
-                            .asSequence()
-                            // 隣が羊である
+                    .flatMap { currentCoordinate ->
+                        board[currentCoordinate]
+                            .movableDirections
                             .mapNotNull { direction ->
-                                board.getNext(coordinate, direction)?.let { direction to it }
+                                // 隣が羊である
+                                val killCoordinate =
+                                    board.getNext(currentCoordinate, direction) ?: return@mapNotNull null
+                                if (board[killCoordinate].peace != Peace.Goat) return@mapNotNull null
+
+                                // その奥が空である
+                                val nextCoordinate = board.getNext(killCoordinate, direction) ?: return@mapNotNull null
+                                if (board[nextCoordinate].peace != null) return@mapNotNull null
+
+                                TigerMove(from = currentCoordinate, to = nextCoordinate, kill = killCoordinate)
                             }
-                            .filter { (_, killCoordinate) -> board[killCoordinate].peace == Peace.Goat }
-                            // その奥が空である
-                            .mapNotNull { (direction, killCoordinate) ->
-                                board.getNext(killCoordinate, direction)?.let { killCoordinate to it }
-                            }
-                            .filter { (_, nextCoordinate) -> board[nextCoordinate].peace == null }
-                            .map { (killCoordinate, nextCoordinate) ->
-                                TigerMove(from = coordinate, to = nextCoordinate, kill = killCoordinate)
-                            }
-                            .toList()
                     }
 
                 return moveMovements + killMovement

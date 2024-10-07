@@ -16,6 +16,9 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             ?.getOrNull(coordinate.column)
             ?: throw BoardException.CoordinateOutOfRangeException
 
+    internal fun getNext(coordinate: Coordinate): List<Coordinate> =
+        get(coordinate).movableDirections.mapNotNull { getNext(coordinate, it) }
+
     internal fun getNext(coordinate: Coordinate, direction: Direction): Coordinate? {
         val nextCoordinate = coordinate.moveTo(direction)
         if (nextCoordinate !in coordinates) return null
@@ -42,7 +45,9 @@ class Board private constructor(private val tiles: List<List<Tile>>) {
             List(5) { columnIndex ->
                 if ((rowIndex + columnIndex) % 2 == 0) {
                     EightDirectionTile.create()
-                } else ForthDirectionTile.create()
+                } else {
+                    ForthDirectionTile.create()
+                }
             }
         }
             .let { Board(it) }
@@ -59,4 +64,6 @@ private fun <T> List<T>.update(
 ): List<T> =
     if (index !in 0..size) {
         throw BoardException.CoordinateOutOfRangeException
-    } else subList(0, index) + block(get(index)) + subList(index + 1, size)
+    } else {
+        subList(0, index) + block(get(index)) + subList(index + 1, size)
+    }

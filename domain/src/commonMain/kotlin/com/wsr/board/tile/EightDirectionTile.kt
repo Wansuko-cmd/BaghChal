@@ -5,7 +5,7 @@ import com.wsr.board.Direction
 
 internal class EightDirectionTile private constructor(peace: Peace?) : Tile(peace) {
 
-    override val movableDirection: List<Direction> = listOf(
+    override val movableDirections: List<Direction> = listOf(
         Direction.Up,
         Direction.Down,
         Direction.Left,
